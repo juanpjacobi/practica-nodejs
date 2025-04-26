@@ -24,12 +24,18 @@ export async function getOne(req: Request, res: Response, next: NextFunction) {
   }
 }
 
-export async function create(req: Request, res: Response, next: NextFunction) {
+export async function create(
+  req: Request, res: Response, next: NextFunction
+): Promise<void> {
   try {
     const { name, email } = req.body;
     const user = await userService.createUser({ name, email });
     res.status(201).json(user);
-  } catch (err) {
+  } catch (err: any) {
+    if (err.code === '23505') {
+      res.status(409).json({ message: 'Email ya registrado' });
+      return;
+    }
     next(err);
   }
 }
